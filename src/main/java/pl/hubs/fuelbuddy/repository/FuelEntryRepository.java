@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface FuelEntryRepository extends JpaRepository<FuelEntry, Long> {
     List<FuelEntry> findByVehicle(Vehicle vehicle);
+    List<FuelEntry> findByVehicleOrderByDateAsc(Vehicle vehicle);
+    List<FuelEntry> findByVehicleOrderByDateDesc(Vehicle vehicle);
 }

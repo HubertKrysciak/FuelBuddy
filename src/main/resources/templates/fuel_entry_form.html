@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Formularz Tankowania</title>
+</head>
+<body>
+<h1 th:text="${fuelEntry.id == null} ? 'Dodaj Tankowanie' : 'Edytuj Tankowanie'">Formularz Tankowania</h1>
+<form th:action="@{/fuelentries/save}" th:object="${fuelEntry}" method="post">
+    <input type="hidden" th:field="*{vehicle.id}" />
+    <div>
+        <label>Data:</label>
+        <input type="date" th:field="*{date}" />
+    </div>
+    <div>
+        <label>Przebieg:</label>
+        <input type="number" th:field="*{mileage}" />
+    </div>
+    <div>
+        <label>Ilość Paliwa (l):</label>
+        <input type="number" step="0.01" th:field="*{fuelVolume}" />
+    </div>
+    <div>
+        <label>Cena za litr:</label>
+        <input type="number" step="0.01" th:field="*{pricePerUnit}" />
+    </div>
+    <div>
+        <label>Rabat:</label>
+        <input type="number" step="0.01" th:field="*{discount}" />
+    </div>
+    <div>
+        <label>Rodzaj Paliwa:</label>
+        <input type="text" th:field="*{fuelType}" />
+    </div>
+    <div>
+        <label>Stacja Paliw:</label>
+        <input type="text" th:field="*{gasStation}" />
+    </div>
+    <div>
+        <label>Notatki:</label>
+        <textarea th:field="*{notes}"></textarea>
+    </div>
+    <div>
+        <button type="submit">Zapisz</button>
+    </div>
+</form>
+<div th:if="${errorMessage}">
+    <p style="color:red;" th:text="${errorMessage}"></p>
+</div>
+</body>
+</html>

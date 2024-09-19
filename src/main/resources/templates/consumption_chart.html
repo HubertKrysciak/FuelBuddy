@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Średnie Zużycie Paliwa</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>Średnie Zużycie Paliwa dla [[${vehicle.make}]] [[${vehicle.model}]]</h1>
+
+<canvas id="consumptionChart" width="400" height="200"></canvas>
+
+<script>
+    var ctx = document.getElementById('consumptionChart').getContext('2d');
+    var labels = /*[[${labels}]]*/ [];
+    var data = /*[[${data}]]*/ [];
+
+    var consumptionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Zużycie paliwa (l/100km)',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Data'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Zużycie paliwa (l/100km)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

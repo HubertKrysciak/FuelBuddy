@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>FuelBuddy - Strona Główna</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        /* Stylizacja układu strony */
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .left-section, .center-section, .right-section {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .left-section {
+            flex: 1;
+            border-right: 1px solid #ccc;
+        }
+        .center-section {
+            flex: 2;
+            border-right: 1px solid #ccc;
+        }
+        .right-section {
+            flex: 1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .pagination {
+            margin-top: 10px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: blue;
+        }
+        .pagination span {
+            margin: 0 5px;
+        }
+
+        /* Stylizacja modalnego okienka */
+        .modal {
+            display: none; /* Ukryty domyślnie */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4); /* Czarny z przezroczystością */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* 10% od góry i wyśrodkowane */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Szerokość modalnego okienka */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        /* Stylizacja przycisku */
+        .btn {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Komunikaty sukcesu i błędu -->
+<div th:if="${success}">
+    <p style="color:green;">Operacja zakończona sukcesem!</p>
+</div>
+<div th:if="${error}">
+    <p style="color:red;" th:text="${error}"></p>
+</div>
+<h1>Witaj [[${user.username}]]!</h1>
+<div class="container">
+    <!-- Lewa sekcja: Zarządzanie pojazdami -->
+    <div class="left-section">
+        <h2>Pojazdy</h2>
+        <ul>
+            <li th:each="vehicle : ${vehicles}">
+                <span th:text="${vehicle.make} + ' ' + ${vehicle.model}">Nazwa pojazdu</span>
+                <a th:href="@{/vehicles/edit/{id}(id=${vehicle.id})}">Edytuj</a>
+                <a th:href="@{/vehicles/delete/{id}(id=${vehicle.id})}" onclick="return confirm('Czy na pewno chcesz usunąć ten pojazd?');">Usuń</a>
+            </li>
+        </ul>
+        <!-- Przycisk otwierający modal dodawania pojazdu -->
+        <button id="addVehicleBtn" class="btn">Dodaj pojazd</button>
+    </div>
+
+    <!-- Środkowa sekcja: Lista tankowań i wybór pojazdu -->
+    <div class="center-section">
+        <h2>
+            Tankowania
+            <!-- Przycisk do otwierania modalnego formularza -->
+            <button id="addFuelEntryBtn" class="btn">Dodaj Tankowanie</button>
+        </h2>
+        <form method="get" action="/">
+            <label for="vehicleSelect">Wybierz pojazd:</label>
+            <select name="selectedVehicleId" id="vehicleSelect" onchange="this.form.submit()">
+                <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}"
+                        th:text="${vehicle.make} + ' ' + ${vehicle.model}"
+                        th:selected="${vehicle.id == selectedVehicle.id}">
+                    Pojazd
+                </option>
+            </select>
+        </form>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Przebieg</th>
+                <th>Ilość Paliwa (l)</th>
+                <th>Cena za litr (PLN)</th>
+                <th>Akcje</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${fuelEntriesPage.content}">
+                <td th:text="${entry.date}">Data</td>
+                <td th:text="${entry.mileage}">Przebieg</td>
+                <td th:text="${entry.fuelVolume}">Ilość Paliwa</td>
+                <td th:text="${entry.pricePerUnit}">Cena za litr</td>
+                <td>
+                    <a th:href="@{/fuelentries/edit/{id}(id=${entry.id})}">Edytuj</a>
+                    <a th:href="@{/fuelentries/delete/{id}(id=${entry.id})}" onclick="return confirm('Czy na pewno chcesz usunąć ten wpis?');">Usuń</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Paginacja -->
+        <div class="pagination">
+            <a th:if="${fuelEntriesPage.hasPrevious()}"
+               th:href="@{/?page=${fuelEntriesPage.number - 1}&selectedVehicleId=${selectedVehicle.id}}">Poprzednia</a>
+            <span>Strona [[${fuelEntriesPage.number + 1}]] z [[${fuelEntriesPage.totalPages}]]</span>
+            <a th:if="${fuelEntriesPage.hasNext()}"
+               th:href="@{/?page=${fuelEntriesPage.number + 1}&selectedVehicleId=${selectedVehicle.id}}">Następna</a>
+        </div>
+    </div>
+
+    <!-- Prawa sekcja: Statystyki -->
+    <div class="right-section">
+        <h2>Statystyki</h2>
+        <div th:if="${selectedVehicle != null}">
+            <p><strong>Pojazd:</strong> [[${selectedVehicle.make}]] [[${selectedVehicle.model}]]</p>
+            <p><strong>Średnie zużycie paliwa:</strong> [[${#numbers.formatDecimal(averageConsumption, 2, 2)}]] l/100km</p>
+            <p><strong>Całkowity koszt paliwa:</strong> [[${#numbers.formatDecimal(totalFuelCost, 2, 2)}]] PLN</p>
+            <!-- Możesz tutaj dodać więcej statystyk lub wykresów -->
+        </div>
+        <div th:if="${selectedVehicle == null}">
+            <p>Wybierz pojazd, aby zobaczyć statystyki.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modalne Okienko z Formularzem Dodawania Tankowania -->
+<div id="fuelEntryModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Dodaj Nowe Tankowanie</h2>
+        <form th:action="@{/fuelentries/save}" th:object="${fuelEntry}" method="post">
+            <input type="hidden" th:field="*{vehicle.id}" />
+            <div>
+                <label for="date">Data:</label>
+                <input type="date" th:field="*{date}" required />
+            </div>
+            <div>
+                <label for="mileage">Przebieg:</label>
+                <input type="number" th:field="*{mileage}" required />
+            </div>
+            <div>
+                <label for="fuelVolume">Ilość Paliwa (l):</label>
+                <input type="number" step="0.01" th:field="*{fuelVolume}" required />
+            </div>
+            <div>
+                <label for="pricePerUnit">Cena za litr (PLN):</label>
+                <input type="number" step="0.01" th:field="*{pricePerUnit}" required />
+            </div>
+            <div>
+                <label for="discount">Rabat (PLN):</label>
+                <input type="number" step="0.01" th:field="*{discount}" />
+            </div>
+            <div>
+                <label for="fuelType">Rodzaj Paliwa:</label>
+                <input type="text" th:field="*{fuelType}" />
+            </div>
+            <div>
+                <label for="gasStation">Stacja Paliw:</label>
+                <input type="text" th:field="*{gasStation}" />
+            </div>
+            <div>
+                <label for="notes">Notatki:</label>
+                <textarea th:field="*{notes}"></textarea>
+            </div>
+            <div>
+                <button type="submit">Dodaj Tankowanie</button>
+            </div>
+        </form>
+        <div th:if="${error}">
+            <p style="color:red;" th:text="${error}"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Modalne Okienko z Formularzem Dodawania Pojazdu -->
+<div id="vehicleModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Dodaj Nowy Pojazd</h2>
+        <form th:action="@{/vehicles/save}" th:object="${vehicle}" method="post">
+            <input type="hidden" th:field="*{user.id}" />
+            <div>
+                <label for="make">Marka:</label>
+                <input type="text" th:field="*{make}" required />
+            </div>
+            <div>
+                <label for="model">Model:</label>
+                <input type="text" th:field="*{model}" required />
+            </div>
+            <div>
+                <label for="year">Rok:</label>
+                <input type="number" th:field="*{year}" required />
+            </div>
+            <div>
+                <label for="registrationNumber">Numer Rejestracyjny:</label>
+                <input type="text" th:field="*{registrationNumber}" required />
+            </div>
+            <div>
+                <button type="submit">Dodaj Pojazd</button>
+            </div>
+        </form>
+        <div th:if="${vehicleErrorMessage}">
+            <p style="color:red;" th:text="${vehicleErrorMessage}"></p>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript do Obsługi Modalnych Okienek -->
+<script th:inline="javascript">
+    // Modalne Okienko Dodawania Tankowania
+    var fuelModal =  document.getElementById("fuelEntryModal");
+    var fuelBtn =  document.getElementById("addFuelEntryBtn");
+    var fuelSpan = fuelModal.getElementsByClassName("close")[0];
+
+    fuelBtn.onclick = function() {
+            fuelModal.style.display = "block";
+    }
+
+    fuelSpan.onclick = function() {
+        fuelModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == fuelModal) {
+            fuelModal.style.display = "none";
+        }
+    }
+</script>
+<script>
+    // Modalne Okienko Dodawania Pojazdu
+    var vehicleModal = document.getElementById("vehicleModal");
+    var vehicleBtn = document.getElementById("addVehicleBtn");
+    var vehicleSpan = vehicleModal.getElementsByClassName("close")[0];
+
+    vehicleBtn.onclick = function() {
+        vehicleModal.style.display = "block";
+    }
+
+    vehicleSpan.onclick = function() {
+        vehicleModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == vehicleModal) {
+            vehicleModal.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tankowania</title>
+</head>
+<body>
+<h1>Tankowania dla pojazdu [[${vehicle.make}]] [[${vehicle.model}]]</h1>
+<a th:href="@{/fuelentries/vehicle/{vehicleId}/add(vehicleId=${vehicle.id})}">Dodaj wpis</a>
+<table>
+    <tr>
+        <th>Data</th>
+        <th>Przebieg</th>
+        <th>Ilość Paliwa</th>
+        <th>Cena za litr</th>
+        <th>Akcje</th>
+    </tr>
+    <tr th:each="entry : ${fuelEntries}">
+        <td th:text="${entry.date}">Data</td>
+        <td th:text="${entry.mileage}">Przebieg</td>
+        <td th:text="${entry.fuelVolume}">Ilość Paliwa</td>
+        <td th:text="${entry.pricePerUnit}">Cena za litr</td>
+        <td>
+            <a th:href="@{/fuelentries/edit/{id}(id=${entry.id})}">Edytuj</a>
+            <a th:href="@{/fuelentries/delete/{id}(id=${entry.id})}">Usuń</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

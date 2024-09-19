@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Statystyki dla pojazdu [[${vehicle.make}]] [[${vehicle.model}]]</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>Statystyki dla pojazdu [[${vehicle.make}]] [[${vehicle.model}]]</h1>
+
+<p>Średnie zużycie paliwa: [[${averageConsumption}]] l/100km</p>
+
+<canvas id="myChart" width="400" height="200"></canvas>
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var labels = /*[[${labels}]]*/ [];
+    var data = /*[[${data}]]*/ [];
+
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ilość tankowanego paliwa',
+                data: data,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Data'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Ilość paliwa (l)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

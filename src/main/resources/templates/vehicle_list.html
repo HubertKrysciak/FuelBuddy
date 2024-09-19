@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Moje Pojazdy</title>
+</head>
+<body>
+<h1>Pojazdy użytkownika [[${user.username}]]</h1>
+<a th:href="@{/vehicles/user/{userId}/add(userId=${user.id})}">Dodaj pojazd</a>
+<table>
+    <tr>
+        <th>Marka</th>
+        <th>Model</th>
+        <th>Rok</th>
+        <th>Akcje</th>
+    </tr>
+    <tr th:each="vehicle : ${vehicles}">
+        <td th:text="${vehicle.make}">Marka</td>
+        <td th:text="${vehicle.model}">Model</td>
+        <td th:text="${vehicle.year}">Rok</td>
+        <td>
+            <a th:href="@{/vehicles/edit/{id}(id=${vehicle.id})}">Edytuj</a>
+            <a th:href="@{/vehicles/delete/{id}(id=${vehicle.id})}">Usuń</a>
+            <a th:href="@{/fuelentries/vehicle/{vehicleId}(vehicleId=${vehicle.id})}">Tankowania</a>
+        </td>
+        <a th:href="@{/fuelentries/vehicle/{vehicleId}/statistics(vehicleId=${vehicle.id})}">Statystyki</a>
+    </tr>
+</table>
+</body>
+</html>

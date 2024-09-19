@@ -1,6 +1,8 @@
 package pl.hubs.fuelbuddy.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.hubs.fuelbuddy.entity.FuelEntry;
 import pl.hubs.fuelbuddy.entity.Vehicle;
@@ -13,7 +15,6 @@ import java.util.Optional;
 @Service
 public class FuelEntryServiceImpl implements FuelEntryService {
     private final FuelEntryRepository fuelEntryRepository;
-
 
 
     @Autowired
@@ -57,6 +58,7 @@ public class FuelEntryServiceImpl implements FuelEntryService {
             throw new IllegalArgumentException("Cena jednostkowa musi być większa niż zero.");
         }
     }
+
     @Override
     public Optional<FuelEntry> getFuelEntryById(Long id) {
         return fuelEntryRepository.findById(id);
@@ -68,6 +70,12 @@ public class FuelEntryServiceImpl implements FuelEntryService {
     }
 
     @Override
+    public Page<FuelEntry> getFuelEntriesByVehicle(Vehicle vehicle, Pageable pageable) {
+        return fuelEntryRepository.findByVehicle(vehicle, pageable);
+    }
+
+
+    @Override
     public void deleteFuelEntry(Long id) {
         if (!fuelEntryRepository.existsById(id)) {
             throw new IllegalArgumentException("Wpis o podanym ID nie istnieje.");
@@ -76,6 +84,7 @@ public class FuelEntryServiceImpl implements FuelEntryService {
     }
 
     // Obliczanie średniego zużycia paliwa na 100 km
+    @Override
     public double calculateAverageConsumption(Vehicle vehicle) {
         List<FuelEntry> entries = fuelEntryRepository.findByVehicleOrderByDateAsc(vehicle);
         if (entries.size() < 2) {
@@ -131,4 +140,36 @@ public class FuelEntryServiceImpl implements FuelEntryService {
 
         return totalCost / totalDistance;
     }
+
+    @Override
+    public double calculateTotalFuelCost(Vehicle vehicle) {
+        List<FuelEntry> entries = fuelEntryRepository.findByVehicle(vehicle);
+        double totalCost = 0.0;
+
+        for (FuelEntry entry : entries) {
+            double cost = entry.getFuelVolume() * entry.getPricePerUnit() - (entry.getDiscount() != null ? entry.getDiscount() : 0.0);
+            totalCost += cost;
+        }
+
+        return totalCost;
+    }
+
+    @Override
+    public double calculateAverageFuelPrice(Vehicle vehicle) {
+        List<FuelEntry> entries = fuelEntryRepository.findByVehicle(vehicle);
+        if (entries.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalPrice = 0.0;
+        int count = 0;
+
+        for (FuelEntry entry : entries) {
+            totalPrice += entry.getPricePerUnit();
+            count++;
+        }
+
+        return totalPrice / count;
+    }
+
 }

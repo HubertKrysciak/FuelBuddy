@@ -2,6 +2,8 @@ package pl.hubs.fuelbuddy.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +37,10 @@ public class HomeController {
                                @RequestParam(required = false) Boolean success,
                                @RequestParam(required = false) String error) {
 
-        // Zakładamy użytkownika o ID 1 (do czasu wdrożenia uwierzytelniania)
-        User user = userService.getUserById(1L)
+        // Pobierz aktualnie zalogowanego użytkownika
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.getUserByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika"));
 
         // Pobranie pojazdów użytkownika
@@ -55,7 +59,7 @@ public class HomeController {
         double averageConsumption = 0.0;
         double totalFuelCost = 0.0;
         if (selectedVehicle != null) {
-            Pageable pageable = PageRequest.of(page, 50, Sort.by("date").descending());
+            Pageable pageable = PageRequest.of(page, 1, Sort.by("date").descending());
             fuelEntriesPage = fuelEntryService.getFuelEntriesByVehicle(selectedVehicle, pageable);
 
             // Obliczanie statystyk

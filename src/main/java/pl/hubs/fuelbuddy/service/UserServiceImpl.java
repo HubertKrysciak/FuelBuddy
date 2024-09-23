@@ -1,8 +1,13 @@
 package pl.hubs.fuelbuddy.service;
 
-import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import pl.hubs.fuelbuddy.entity.User;
 import pl.hubs.fuelbuddy.repository.UserRepository;
 
@@ -11,12 +16,14 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
-    // private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -29,8 +36,8 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Nazwa użytkownika jest już zajęta.");
         }
 
-        // Haszowanie hasła (jeśli używasz PasswordEncoder)
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        // Haszowanie hasła
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Zapis użytkownika w bazie danych
         return userRepository.save(user);
@@ -79,5 +86,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Użytkownik o podanym ID nie istnieje.");
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie znaleziony"));
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .roles("USER")
+                .build();
     }
 }

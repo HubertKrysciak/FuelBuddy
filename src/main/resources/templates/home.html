@@ -2,307 +2,265 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>FuelBuddy - Strona Główna</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>
-        /* Stylizacja układu strony */
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        .left-section, .center-section, .right-section {
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .left-section {
-            flex: 1;
-            border-right: 1px solid #ccc;
-        }
-        .center-section {
-            flex: 2;
-            border-right: 1px solid #ccc;
-        }
-        .right-section {
-            flex: 1;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        .pagination {
-            margin-top: 10px;
-        }
-        .pagination a {
-            margin: 0 5px;
-            text-decoration: none;
-            color: blue;
-        }
-        .pagination span {
-            margin: 0 5px;
-        }
-
-        /* Stylizacja modalnego okienka */
-        .modal {
-            display: none; /* Ukryty domyślnie */
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4); /* Czarny z przezroczystością */
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto; /* 10% od góry i wyśrodkowane */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 50%; /* Szerokość modalnego okienka */
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-        }
-        /* Stylizacja przycisku */
-        .btn {
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-
-<!-- Komunikaty sukcesu i błędu -->
-<div th:if="${success}">
-    <p style="color:green;">Operacja zakończona sukcesem!</p>
-</div>
-<div th:if="${error}">
-    <p style="color:red;" th:text="${error}"></p>
-</div>
-<h1>Witaj [[${user.username}]]!</h1>
-<div class="container">
-    <!-- Lewa sekcja: Zarządzanie pojazdami -->
-    <div class="left-section">
-        <h2>Pojazdy</h2>
-        <ul>
-            <li th:each="vehicle : ${vehicles}">
-                <span th:text="${vehicle.make} + ' ' + ${vehicle.model}">Nazwa pojazdu</span>
-                <a th:href="@{/vehicles/edit/{id}(id=${vehicle.id})}">Edytuj</a>
-                <a th:href="@{/vehicles/delete/{id}(id=${vehicle.id})}" onclick="return confirm('Czy na pewno chcesz usunąć ten pojazd?');">Usuń</a>
-            </li>
-        </ul>
-        <!-- Przycisk otwierający modal dodawania pojazdu -->
-        <button id="addVehicleBtn" class="btn">Dodaj pojazd</button>
-    </div>
-
-    <!-- Środkowa sekcja: Lista tankowań i wybór pojazdu -->
-    <div class="center-section">
-        <h2>
-            Tankowania
-            <!-- Przycisk do otwierania modalnego formularza -->
-            <button id="addFuelEntryBtn" class="btn">Dodaj Tankowanie</button>
-        </h2>
-        <form method="get" action="/">
-            <label for="vehicleSelect">Wybierz pojazd:</label>
-            <select name="selectedVehicleId" id="vehicleSelect" onchange="this.form.submit()">
-                <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}"
-                        th:text="${vehicle.make} + ' ' + ${vehicle.model}"
-                        th:selected="${vehicle.id == selectedVehicle.id}">
-                    Pojazd
-                </option>
-            </select>
-        </form>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Data</th>
-                <th>Przebieg</th>
-                <th>Ilość Paliwa (l)</th>
-                <th>Cena za litr (PLN)</th>
-                <th>Akcje</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="entry : ${fuelEntriesPage.content}">
-                <td th:text="${entry.date}">Data</td>
-                <td th:text="${entry.mileage}">Przebieg</td>
-                <td th:text="${entry.fuelVolume}">Ilość Paliwa</td>
-                <td th:text="${entry.pricePerUnit}">Cena za litr</td>
-                <td>
-                    <a th:href="@{/fuelentries/edit/{id}(id=${entry.id})}">Edytuj</a>
-                    <a th:href="@{/fuelentries/delete/{id}(id=${entry.id})}" onclick="return confirm('Czy na pewno chcesz usunąć ten wpis?');">Usuń</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <!-- Paginacja -->
-        <div class="pagination">
-            <a th:if="${fuelEntriesPage.hasPrevious()}"
-               th:href="@{/?page=${fuelEntriesPage.number - 1}&selectedVehicleId=${selectedVehicle.id}}">Poprzednia</a>
-            <span>Strona [[${fuelEntriesPage.number + 1}]] z [[${fuelEntriesPage.totalPages}]]</span>
-            <a th:if="${fuelEntriesPage.hasNext()}"
-               th:href="@{/?page=${fuelEntriesPage.number + 1}&selectedVehicleId=${selectedVehicle.id}}">Następna</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">FuelBuddy</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-danger">Wyloguj się</button>
+                    </form>
+                </li>
+            </ul>
         </div>
     </div>
+</nav>
 
-    <!-- Prawa sekcja: Statystyki -->
-    <div class="right-section">
-        <h2>Statystyki</h2>
-        <div th:if="${selectedVehicle != null}">
-            <p><strong>Pojazd:</strong> [[${selectedVehicle.make}]] [[${selectedVehicle.model}]]</p>
-            <p><strong>Średnie zużycie paliwa:</strong> [[${#numbers.formatDecimal(averageConsumption, 2, 2)}]] l/100km</p>
-            <p><strong>Całkowity koszt paliwa:</strong> [[${#numbers.formatDecimal(totalFuelCost, 2, 2)}]] PLN</p>
-            <!-- Możesz tutaj dodać więcej statystyk lub wykresów -->
+<div class="container mt-4">
+    <div class="alert alert-success" th:if="${success}">Operacja zakończona sukcesem!</div>
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+    <h1 class="mb-4">Witaj [[${user.username}]]!</h1>
+    <div class="row">
+        <!-- Lewa sekcja: Zarządzanie pojazdami -->
+        <div class="col-md-3">
+            <h2>Pojazdy</h2>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center" th:each="vehicle : ${vehicles}">
+                    <span th:text="${vehicle.make} + ' ' + ${vehicle.model}">Nazwa pojazdu</span>
+                    <div>
+                        <button class="btn btn-warning btn-sm mr-1 editButton" th:data-id="${vehicle.id}" th:data-make="${vehicle.make}" th:data-model="${vehicle.model}" th:data-year="${vehicle.year}" th:data-registration="${vehicle.registrationNumber}" th:data-fuelEntries="${vehicle.fuelEntries}">Edytuj</button>
+                        <a th:href="@{/vehicles/delete/{id}(id=${vehicle.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć ten pojazd?');">Usuń</a>
+                    </div>
+                </li>
+            </ul>
+            <button id="addVehicleBtn" class="btn btn-primary mt-3">Dodaj pojazd</button>
         </div>
-        <div th:if="${selectedVehicle == null}">
-            <p>Wybierz pojazd, aby zobaczyć statystyki.</p>
+
+        <!-- Środkowa sekcja: Lista tankowań i wybór pojazdu -->
+        <div class="col-md-6">
+            <h2>Tankowania</h2>
+            <button th:if="${selectedVehicle != null}" id="addFuelEntryBtn" class="btn btn-primary mt-3">Dodaj tankowanie</button>
+            <form method="get" action="/" class="form-inline mb-3">
+                <label for="vehicleSelect" class="mr-2">Wybierz pojazd:</label>
+                <select name="selectedVehicleId" id="vehicleSelect" class="form-control mr-2" onchange="this.form.submit()">
+                    <option th:each="vehicle : ${vehicles}" th:value="${vehicle.id}"
+                            th:text="${vehicle.make} + ' ' + ${vehicle.model}"
+                            th:selected="${vehicle.id == selectedVehicle.id}">Pojazd
+                    </option>
+                </select>
+            </form>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Przebieg</th>
+                    <th>Ilość Paliwa (l)</th>
+                    <th>Cena za litr (PLN)</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${fuelEntriesPage.content}">
+                    <td th:text="${entry.date}">Data</td>
+                    <td th:text="${entry.mileage}">Przebieg</td>
+                    <td th:text="${entry.fuelVolume}">Ilość Paliwa</td>
+                    <td th:text="${entry.pricePerUnit}">Cena za litr</td>
+                    <td>
+                        <a th:href="@{/fuelentries/edit/{id}(id=${entry.id})}" class="btn btn-warning btn-sm">Edytuj</a>
+                        <a th:href="@{/fuelentries/delete/{id}(id=${entry.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć ten wpis?');">Usuń</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <nav th:if="${fuelEntriesPage.totalPages > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${fuelEntriesPage.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/?page=${fuelEntriesPage.number - 1}&selectedVehicleId=${selectedVehicle.id}}">Poprzednia</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, fuelEntriesPage.totalPages - 1)}"
+                        th:classappend="${fuelEntriesPage.number == i} ? 'active' : ''">
+                        <a class="page-link" th:text="${i + 1}" th:href="@{/?page=${i}&selectedVehicleId=${selectedVehicle.id}}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${fuelEntriesPage.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/?page=${fuelEntriesPage.number + 1}&selectedVehicleId=${selectedVehicle.id}}">Następna</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Prawa sekcja: Statystyki -->
+        <div class="col-md-3">
+            <h2>Statystyki</h2>
+            <div th:if="${selectedVehicle != null}">
+                <p><strong>Pojazd:</strong> [[${selectedVehicle.make}]] [[${selectedVehicle.model}]]</p>
+                <p><strong>Średnie zużycie paliwa:</strong> [[${#numbers.formatDecimal(averageConsumption, 2, 2)}]] l/100km</p>
+                <p><strong>Całkowity koszt paliwa:</strong> [[${#numbers.formatDecimal(totalFuelCost, 2, 2)}]] PLN</p>
+            </div>
+            <div th:if="${selectedVehicle == null}">
+                <p>Wybierz pojazd, aby zobaczyć statystyki.</p>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Modalne Okienko z Formularzem Dodawania Tankowania -->
-<div id="fuelEntryModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Dodaj Nowe Tankowanie</h2>
-        <form th:action="@{/fuelentries/save}" th:object="${fuelEntry}" method="post">
-            <input type="hidden" th:field="*{vehicle.id}" />
-            <div>
-                <label for="date">Data:</label>
-                <input type="date" th:field="*{date}" required />
+<div id="fuelEntryModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dodaj Nowe Tankowanie</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div>
-                <label for="mileage">Przebieg:</label>
-                <input type="number" th:field="*{mileage}" required />
+            <div class="modal-body">
+                <form th:action="@{/fuelentries/save}" th:object="${fuelEntry}" method="post">
+                    <input type="hidden" th:field="*{vehicle.id}" />
+                    <div class="form-group">
+                        <label for="date">Data:</label>
+                        <input type="date" class="form-control" th:field="*{date}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="mileage">Przebieg:</label>
+                        <input type="number" class="form-control" th:field="*{mileage}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="fuelVolume">Ilość Paliwa (l):</label>
+                        <input type="number" class="form-control" step="0.01" th:field="*{fuelVolume}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="pricePerUnit">Cena za litr (PLN):</label>
+                        <input type="number" class="form-control" step="0.01" th:field="*{pricePerUnit}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Rabat (PLN):</label>
+                        <input type="number" class="form-control" step="0.01" th:field="*{discount}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="fuelType">Rodzaj Paliwa:</label>
+                        <input type="text" class="form-control" th:field="*{fuelType}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="gasStation">Stacja Paliw:</label>
+                        <input type="text" class="form-control" th:field="*{gasStation}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notatki:</label>
+                        <textarea class="form-control" th:field="*{notes}"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodaj Tankowanie</button>
+                </form>
             </div>
-            <div>
-                <label for="fuelVolume">Ilość Paliwa (l):</label>
-                <input type="number" step="0.01" th:field="*{fuelVolume}" required />
-            </div>
-            <div>
-                <label for="pricePerUnit">Cena za litr (PLN):</label>
-                <input type="number" step="0.01" th:field="*{pricePerUnit}" required />
-            </div>
-            <div>
-                <label for="discount">Rabat (PLN):</label>
-                <input type="number" step="0.01" th:field="*{discount}" />
-            </div>
-            <div>
-                <label for="fuelType">Rodzaj Paliwa:</label>
-                <input type="text" th:field="*{fuelType}" />
-            </div>
-            <div>
-                <label for="gasStation">Stacja Paliw:</label>
-                <input type="text" th:field="*{gasStation}" />
-            </div>
-            <div>
-                <label for="notes">Notatki:</label>
-                <textarea th:field="*{notes}"></textarea>
-            </div>
-            <div>
-                <button type="submit">Dodaj Tankowanie</button>
-            </div>
-        </form>
-        <div th:if="${error}">
-            <p style="color:red;" th:text="${error}"></p>
         </div>
     </div>
 </div>
 
 <!-- Modalne Okienko z Formularzem Dodawania Pojazdu -->
-<div id="vehicleModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Dodaj Nowy Pojazd</h2>
-        <form th:action="@{/vehicles/save}" th:object="${vehicle}" method="post">
-            <input type="hidden" th:field="*{user.id}" />
-            <div>
-                <label for="make">Marka:</label>
-                <input type="text" th:field="*{make}" required />
+<div id="vehicleModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dodaj Nowy Pojazd</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div>
-                <label for="model">Model:</label>
-                <input type="text" th:field="*{model}" required />
+            <div class="modal-body">
+                <form th:action="@{/vehicles/save}" th:object="${vehicle}" method="post">
+                    <input type="hidden" th:field="*{user.id}" />
+                    <div class="form-group">
+                        <label for="make">Marka:</label>
+                        <input type="text" class="form-control" th:field="*{make}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model:</label>
+                        <input type="text" class="form-control" th:field="*{model}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Rok:</label>
+                        <input type="number" class="form-control" th:field="*{year}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationNumber">Numer Rejestracyjny:</label>
+                        <input type="text" class="form-control" th:field="*{registrationNumber}" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodaj Pojazd</button>
+                </form>
             </div>
-            <div>
-                <label for="year">Rok:</label>
-                <input type="number" th:field="*{year}" required />
+        </div>
+    </div>
+</div>
+
+<div id="vehicleEditModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edycja pojazdu [[${vehicle.make}]]</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div>
-                <label for="registrationNumber">Numer Rejestracyjny:</label>
-                <input type="text" th:field="*{registrationNumber}" required />
+            <div class="modal-body">
+                <form th:action="@{/vehicles/edit}" th:object="${vehicle}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{fuelEntries}">
+                    <input type="hidden" th:field="*{user.id}" />
+                    <div class="form-group">
+                        <label for="make">Marka:</label>
+                        <input type="text" class="form-control" name="make" th:field="*{make}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model:</label>
+                        <input type="text" class="form-control" th:field="*{model}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Rok:</label>
+                        <input type="number" class="form-control" th:field="*{year}" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationNumber">Numer Rejestracyjny:</label>
+                        <input type="text" class="form-control" th:field="*{registrationNumber}" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Edytuj Pojazd</button>
+                </form>
             </div>
-            <div>
-                <button type="submit">Dodaj Pojazd</button>
-            </div>
-        </form>
-        <div th:if="${vehicleErrorMessage}">
-            <p style="color:red;" th:text="${vehicleErrorMessage}"></p>
         </div>
     </div>
 </div>
 
 <!-- JavaScript do Obsługi Modalnych Okienek -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     // Modalne Okienko Dodawania Tankowania
-    var fuelModal =  document.getElementById("fuelEntryModal");
-    var fuelBtn =  document.getElementById("addFuelEntryBtn");
-    var fuelSpan = fuelModal.getElementsByClassName("close")[0];
+    $('#addFuelEntryBtn').on('click', function() {
+        $('#fuelEntryModal').modal('show');
+    });
 
-    fuelBtn.onclick = function() {
-            fuelModal.style.display = "block";
-    }
-
-    fuelSpan.onclick = function() {
-        fuelModal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == fuelModal) {
-            fuelModal.style.display = "none";
-        }
-    }
-</script>
-<script>
     // Modalne Okienko Dodawania Pojazdu
-    var vehicleModal = document.getElementById("vehicleModal");
-    var vehicleBtn = document.getElementById("addVehicleBtn");
-    var vehicleSpan = vehicleModal.getElementsByClassName("close")[0];
+    $('#addVehicleBtn').on('click', function() {
+        $('#vehicleModal').modal('show');
+    });
 
-    vehicleBtn.onclick = function() {
-        vehicleModal.style.display = "block";
-    }
+    // Modalne Okienko Edycji Pojazdu
+    $('.editButton').on('click', function() {
+        var vehicleId = $(this).data('id');
+        var vehicleMake = $(this).data('make');
+        var vehicleModel = $(this).data('model');
+        var vehicleYear = $(this).data('year');
+        var vehicleRegistration = $(this).data('registration');
+        var vehicleFuelEntries = $(this).data('fuelEntries');
 
-    vehicleSpan.onclick = function() {
-        vehicleModal.style.display = "none";
-    }
+        $('#vehicleEditModal').find('input[name="id"]').val(vehicleId);
+        $('#vehicleEditModal').find('input[name="make"]').val(vehicleMake);
+        $('#vehicleEditModal').find('input[name="model"]').val(vehicleModel);
+        $('#vehicleEditModal').find('input[name="year"]').val(vehicleYear);
+        $('#vehicleEditModal').find('input[name="registrationNumber"]').val(vehicleRegistration);
+        $('#vehicleEditModal').find('input[name="fuelEntries"]').val(vehicleFuelEntries);
 
-    window.onclick = function(event) {
-        if (event.target == vehicleModal) {
-            vehicleModal.style.display = "none";
-        }
-    }
+        $('#vehicleEditModal').modal('show');
+    });
+
+
+
 </script>
 </body>
 </html>

@@ -89,3 +89,43 @@ table th, table td {
 .btn:hover {
     background-color: #45a049;
 }
+
+
+/* Belka nawigacyjna na górze strony */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-left h1 {
+    margin: 0;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Stylizacja przycisku wylogowania w belce nawigacyjnej */
+.btn-logout {
+    background-color: #d9534f;
+    margin-left: 10px;
+}
+
+.btn-logout:hover {
+    background-color: #c9302c;
+}
+
+/* Dodanie odstępu na górze strony dla zawartości poniżej belki */
+.container {
+    margin-top: 70px; /* Upewnij się, że zawartość nie chowa się pod belką */
+}

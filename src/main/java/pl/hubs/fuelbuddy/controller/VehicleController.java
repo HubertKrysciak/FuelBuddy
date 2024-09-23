@@ -56,10 +56,10 @@ public class VehicleController {
     }
 
     // Opcjonalnie: Metoda do edycji pojazdu
-    @PostMapping("/edit/{id}")
-    public String editVehicle(@PathVariable Long id, @ModelAttribute("vehicle") Vehicle vehicle, Model model) {
+    @PostMapping("/edit")
+    public String editVehicle(@ModelAttribute("vehicle") Vehicle vehicle, Model model) {
         try {
-            vehicle.setId(id);
+            vehicleService.getVehicleById(vehicle.getId());
             vehicleService.saveVehicle(vehicle);
             return "redirect:/?selectedVehicleId=" + vehicle.getId() + "&success=true";
         } catch (Exception e) {
@@ -74,6 +74,6 @@ public class VehicleController {
                 .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pojazdu o ID: " + id));
         Long userId = vehicle.getUser().getId();
         vehicleService.deleteVehicle(id);
-        return "redirect:/vehicles/user/" + userId;
+        return "redirect:/?success=" + "true";
     }
 }

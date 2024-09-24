@@ -26,6 +26,19 @@ public class Vehicle {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.REMOVE, orphanRemoval = false)
     private List<FuelEntry> fuelEntries;
+
+    @Override
+    public String toString() {
+        return "Vehicle{" +
+                "id=" + id +
+                ", make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                ", year=" + year +
+                ", registrationNumber='" + registrationNumber + '\'' +
+                ", user=" + + (user != null ? user.getId() : null) +
+                ", fuelEntries=" + fuelEntries +
+                '}';
+    }
 }

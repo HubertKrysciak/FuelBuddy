@@ -30,6 +30,22 @@ public class FuelEntry {
 
     private String fuelType;
 
+    @Override
+    public String toString() {
+        return "FuelEntry{" +
+                "id=" + id +
+                ", date=" + date +
+                ", mileage=" + mileage +
+                ", fuelVolume=" + fuelVolume +
+                ", pricePerUnit=" + pricePerUnit +
+                ", discount=" + discount +
+                ", fuelType='" + fuelType + '\'' +
+                ", gasStation='" + gasStation + '\'' +
+                ", notes='" + notes + '\'' +
+                ", vehicle=" + (vehicle != null ? vehicle.getId() : null) +
+                '}';
+    }
+
     private String gasStation;
 
     private String notes;

@@ -59,7 +59,7 @@ public class HomeController {
         double averageConsumption = 0.0;
         double totalFuelCost = 0.0;
         if (selectedVehicle != null) {
-            Pageable pageable = PageRequest.of(page, 1, Sort.by("date").descending());
+            Pageable pageable = PageRequest.of(page, 50, Sort.by("date").descending());
             fuelEntriesPage = fuelEntryService.getFuelEntriesByVehicle(selectedVehicle, pageable);
 
             // Obliczanie statystyk

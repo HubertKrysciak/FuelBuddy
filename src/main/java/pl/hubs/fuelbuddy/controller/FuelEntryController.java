@@ -60,12 +60,15 @@ public class FuelEntryController {
     }
     // Wyświetlanie formularza edycji wpisu
 
-    @GetMapping("/edit/{id}")
-    public String showEditFuelEntryForm(@PathVariable Long id, Model model) {
-        FuelEntry fuelEntry = fuelEntryService.getFuelEntryById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono wpisu o ID: " + id));
-        model.addAttribute("fuelEntry", fuelEntry);
-        return "fuel_entry_form";
+    @PostMapping("/edit")
+    public String showEditFuelEntryForm(@ModelAttribute("fuelEntry") FuelEntry fuelEntry, Model model) {
+        try {
+            fuelEntryService.getFuelEntryById(fuelEntry.getId());
+            fuelEntryService.saveFuelEntry(fuelEntry);
+            return "redirect:/?success=true";
+        } catch (Exception e){
+            return "redirect:/?error=" + e.getMessage();
+        }
     }
     // Usuwanie wpisu
 
